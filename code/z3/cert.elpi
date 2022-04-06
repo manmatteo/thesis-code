@@ -1,0 +1,33 @@
+kind cert type.
+kind z3proof type.
+type proof z3proof -> cert.
+
+type let namedproof -> (z3proof -> z3proof) -> z3proof.
+
+type goodproof cert -> prop.
+
+((proof
+(let ((@x68 (rewrite (= (not true) false))))
+ (let (($x87 (= q true)))
+ (let (($x52 (= p true)))
+ (let (($x47 (not (or (not p) r))))
+ (let ((@x45 (mp (asserted (not (=> p r))) (rewrite (= (not (=> p r)) $x47)) $x47)))
+ (let ((@x46 (not-or-elim @x45 p)))
+ (let ((@x66 (monotonicity (mp @x46 (symm (rewrite (= $x52 p)) (= p $x52)) $x52) (= (not p) (not true)))))
+ (let ((@x73 (monotonicity (trans @x66 @x68 (= (not p) false)) (= (or q (not p)) (or q false)))))
+ (let ((@x77 (trans @x73 (rewrite (= (or q false) q)) (= (or q (not p)) q))))
+ (let (($x28 (not p)))
+ (let (($x29 (or q $x28)))
+ (let ((@x32 (mp (asserted (=> p q)) (rewrite (= (=> p q) $x29)) $x29)))
+ (let ((@x92 (mp (mp @x32 @x77 q) (symm (rewrite (= $x87 q)) (= q $x87)) $x87)))
+ (let ((@x96 (trans (monotonicity @x92 (= (not q) (not true))) @x68 (= (not q) false))))
+ (let (($x36 (not q)))
+ (let (($x58 (= r false)))
+ (let (($x49 (not r)))
+ (let ((@x51 (not-or-elim @x45 $x49)))
+ (let ((@x81 (monotonicity (mp @x51 (symm (rewrite (= $x58 $x49)) (= $x49 $x58)) $x58) (= (or r $x36) (or false $x36)))))
+ (let ((@x85 (trans @x81 (rewrite (= (or false $x36) $x36)) (= (or r $x36) $x36))))
+ (let (($x37 (or r $x36)))
+ (let ((@x40 (mp (asserted (=> q r)) (rewrite (= (=> q r) $x37)) $x37)))
+ (mp (mp @x40 @x85 $x36) @x96 false)))))))))))))))))))))))))
+
