@@ -1,9 +1,28 @@
-storeC  (Index ListClauses) (Index ListClauses) Index.
-decideE (Index [(N1,N2)|List]) (Index List) Idx :- get_idx N1 N2 Idx.
-andC    (Index ListClauses) ((l Index) ListClauses) ((r Index) ListClauses).
-orC     (Index ListClauses) ((l Index) ListClauses) ((r Index) ListClauses).
-type cutE                  cert -> cert -> cert -> form -> o.
-type initialE              cert -> index -> o.
-type releaseE              cert -> cert -> o.
-type falseC                cert -> cert -> o.
-type trueE                 cert -> o.
+decideE C1 C2 I :-
+  decideTE C1 C2 I.
+
+decideE C C3 J :-
+  decideTE C C1 I,
+  andTE    C1 C2 C3,
+  initTE   C3 J.
+
+cutE C C2 (lit C3) F :-
+  decideTE C C1 I,
+  andTE    C1 C2 C3,
+  tseitin_clause I F,
+  releaseTE C2 C4.
+
+releaseE (lit C) (lit C).
+storeC (lit C) (litidx C I) I.
+decideE (litidx C I) C I.
+
+storeC C1 C2 I :-
+  storeTC C1 C2 I.
+
+initE C I :-
+  initTE C _I.
+releaseE C (mimic I) :-
+  initTE C I.
+
+releaseE C1 C2 :-
+  releaseTE C1 C2.
