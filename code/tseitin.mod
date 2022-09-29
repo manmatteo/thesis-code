@@ -20,7 +20,7 @@ storeC C1 C2 I :-
   storeTC C1 C2 I.
 
 initE C I :-
-  initTE C _I.
+  initTE C I.
 releaseE C (mimic I) :-
   initTE C I.
 
