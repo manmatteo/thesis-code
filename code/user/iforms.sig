@@ -13,10 +13,6 @@ type tt, ff         iform.
 type and, or        iform -> iform -> iform.
 type exists         (A -> iform) -> iform.
 
-infixr and  6.
-infixr or   5.
-infixr imp  4.
-
 type atomic, non_atomic                   iform -> prop.
 
 type polarize_neg, polarize_pos   iform -> prop.

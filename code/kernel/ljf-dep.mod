@@ -48,19 +48,16 @@ pred_type (sort prop) [].
 pred_type (prod _ TermType (x\ Ty2)) [TermType|Rest]:- pred_type Ty2 Rest.
 
 
-% :if "DEBUG"
-check Ctx A B T :- coq.say "check" Ctx A B T, fail.
-ljf_entry Cert Form Term :- check [] Cert (async [] (unk Form)) Term, coq.say "Ma cazzo".
+:if "DEBUG" check Ctx A B T :- coq.say "check" Ctx A B T, fail.
+ljf_entry Cert Form Term :- check [] Cert (async [] (unk Form)) Term.
 
 % Structural Rules
 % decide
 check Ctx Cert (async [] (str R)) Term :-
-  decideL_je Cert Cert' Indx,
+  decideL_je Cert Cert' _Indx,
   look Ctx Var N, isNeg N,
-  coq.say "Enter decide on " N,
   check Ctx Cert' (lfoc N R) (abs T),
-  Term = (T Var),
-  coq.say "Exit decide on" N "with" Term.
+  Term = (T Var).
 check Ctx Cert (async [] (str P)) T :-
   isPos P, decideR_je Cert Cert', check Ctx Cert' (rfoc P) T.
 % release
@@ -68,7 +65,7 @@ check Ctx Cert (lfoc P R) T :- isPos P, releaseL_je Cert Cert', check Ctx Cert' 
 check Ctx Cert (rfoc N)   T :- isNeg N, releaseR_je Cert Cert', check Ctx Cert' (async [] (unk N))  T.
 % store
 check Ctx Cert (async [C|Theta] R) (abs T) :- (isNeg C ; isPosAtm C),
-  storeL_jc Cert Cert' Indx, 
+  storeL_jc Cert Cert' _Indx, 
   % pi w\ storage Indx w C => 
   pi w\ decl w _Name C =>
     check [(pr w C)| Ctx] (Cert' w) (async Theta R) (T w).
@@ -76,13 +73,8 @@ check Ctx Cert (async [] (unk D)) T :- (isPos D ; isNegAtm D),
   storeR_jc Cert Cert', check Ctx Cert' (async [] (str D)) T.
 % Identity rules
 % initial (all atoms are negative)
-check Ctx Cert (lfoc Na Na) T :- 
-coq.say "Voglio iniziare!!!",
-T = (abs (x\ x)),
-coq.say "Ora",
-isNegAtm Na,
-coq.say "isNeg", initialL_je Cert.
-check Ctx Cert (rfoc Pa)    Var :- isPosAtm Pa, initialR_je Cert Indx, look Ctx Var Pa.% storage Indx Pa.
+check _Ctx Cert (lfoc Na Na) T :- T = (abs (x\ x)), isNegAtm Na, initialL_je Cert.
+check Ctx Cert (rfoc Pa)    Var :- isPosAtm Pa, initialR_je Cert _Indx, look Ctx Var Pa.% storage Indx Pa.
 % cut
 % check Ctx Cert (async [] (str R)) :- cut_je Cert CertA CertB F, 
 %   check Ctx CertA (async [] (unk F)), check Ctx CertB (async [F] (str R)).
@@ -91,14 +83,12 @@ check Ctx Cert (rfoc Pa)    Var :- isPosAtm Pa, initialR_je Cert Indx, look Ctx 
 %% Product
 % Non dependent: then it is an implication
 check Ctx Cert (async [] (unk (prod _ Ty1 (x\ Ty2)))) (fun _name Ty1 F) :-
-  coq.say "Enter arrow",
   arr_jc Cert Cert',
-  check Ctx Cert' (async [Ty1] (unk Ty2)) (abs F),
-  coq.say "Exit arrow with" F.
+  check Ctx Cert' (async [Ty1] (unk Ty2)) (abs F).
 % Dependent: if the abstracted type is type -> (type -> (... -> prop)) it's a pred var
 check Ctx Cert (async [] (unk (prod Name Ty1 Ty2))) (fun Name Ty1 F) :-
   pred_type Ty1 Args, mkproplist Args term_type Preds,
-  pi w\ isNegAtm w => decl w Name Ty1 => Preds => check Ctx Cert (async [] (unk (Ty2 w))) (F w), coq.say Name "came back with" F.
+  pi w\ isNegAtm w => decl w Name Ty1 => Preds => check Ctx Cert (async [] (unk (Ty2 w))) (F w).
 % Dependent: if abstraction is not over ...->prop and there is an all_jc, then it's a forall-right
 check Ctx Cert (async [] (unk (prod _ Ty1 Ty2))) (fun _name Ty1 F) :-
   not (pred_type Ty1 _),
@@ -109,14 +99,11 @@ check Ctx Cert (async [{{lp:A \/ lp:B}}| Theta] R) (abs (x\ app [global OrInd, A
   (R = unk F; R = str F),
   coq.locate "or_ind" OrInd,
   or_jc Cert CertA CertB,
-  coq.say "Enter disjunction",
   check Ctx CertA (async [A | Theta] R) (abs T1),
-  coq.say "Ex1 disj" T1,
-  check Ctx CertB (async [B | Theta] R) (abs T2),
-  coq.say "Ex2 disj" T2.
+  check Ctx CertB (async [B | Theta] R) (abs T2).
 %% Negation
 % check Ctx Cert (async [{{False}}| _Theta] (unk R)) (abs (x\ app [global FalseInd, R, x])):-
-check Ctx Cert (async [{{False}}| _Theta] R) (abs (x\ app [global FalseInd, F, x])):-
+check _Ctx _Cert (async [{{False}}| _Theta] R) (abs (x\ app [global FalseInd, F, x])):-
   (R = unk F; R = str F),
   coq.locate "False_ind" FalseInd.
 % conjunction
@@ -131,8 +118,7 @@ check Ctx Cert (async [app [global Ex_indt, Ty, (fun _ Ty B)] | Theta] R)
   coq.locate "ex" Ex_indt,
   Fun = (fun _ Ty (x\ fun _ (B x) (Proof x))),
   some_jc Cert Cert',
-  pi w\ decl w _Name Ty => (check Ctx (Cert' w) (async [B w | Theta] R) (abs (x\ (Proof w x)))),
-  coq.say "Came back from ex-left with" Proof.
+  pi w\ decl w _Name Ty => check Ctx (Cert' w) (async [B w | Theta] R) (abs (Proof w)).
 % Units
 % check Ctx _Cert (async [] (unk t-)).
 % check Ctx _Cert (async [f | _Theta] _R).

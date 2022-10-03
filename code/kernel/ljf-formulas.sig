@@ -4,16 +4,16 @@ kind form, i                    type. % Formulas and terms
 
 type n, p           A -> form.         % Constructors of literals
 type d-, d+      form -> form.         % Delays 
-type (-a-)    form -> form -> form. % Conjunctions
-type +a+    form -> form -> form. % Conjunctions
-type +!+         form -> form -> form. % Disjunction
-type ==>         form -> form -> form. % Implication
+type (&&-)    form -> form -> form. % Conjunctions
+type (&&+)   form -> form -> form. % Conjunctions
+type (||+)         form -> form -> form. % Disjunction
+type (==>)         form -> form -> form. % Implication
 type all, some   (A -> form)  -> form. % Quantifiers
 type f, t+, t-                   form. % Units
 
 % elpi:skip 3  // the next lines are for Teyjus
-infixr -&-, +&+  6.
-infixr +!+  5.
+infixr &&-, &&+  6.
+infixr ||+  5.
 infixr ==> 4.
 
 
