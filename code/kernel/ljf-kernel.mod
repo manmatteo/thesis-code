@@ -1,16 +1,15 @@
 module ljf-kernel.
-accumulate spy.
 
 type isNegForm, isNegAtm, isPosForm, isPosAtm, isNeg, isPos     form -> o. 
 
 isNegAtm (n _).
 isPosAtm (p _).
 
-isNegForm (_ -&- _) & isNegForm (_ ==> _).
+isNegForm (_ &&- _) & isNegForm (_ ==> _).
 isNegForm (all _)   & isNegForm (d- _)    & isNegForm t-.
 isNeg A :- isNegForm A ; isNegAtm A.
 
-isPosForm (_ +!+ _) & isPosForm (_ +&+ _).
+isPosForm (_ ||+ _) & isPosForm (_ &&+ _).
 isPosForm (d+ _)    & isPosForm (some _)  & isPosForm f  &  isPosForm t+.
 isPos A :- isPosForm A ; isPosAtm A.
 
@@ -47,12 +46,12 @@ check Cert (async nil (str R)) :- cut_je Cert CertA CertB F,
 check Cert (async nil (unk (A ==> B))) :-
   arr_jc Cert Cert', check Cert' (async [A] (unk B)).
 % disjunction
-check Cert (async [A +!+ B| Theta] R) :- or_jc Cert CertA CertB,
+check Cert (async [A ||+ B| Theta] R) :- or_jc Cert CertA CertB,
   check CertA (async [A | Theta] R), check CertB (async [B | Theta] R).
 % conjunction
-check Cert  (async [A +&+ B | Theta] R) :- andPos_jc Cert Cert',
+check Cert  (async [A &&+ B | Theta] R) :- andPos_jc Cert Cert',
   check Cert' (async [A , B | Theta] R).
-check Cert (async nil (unk (A -&- B))) :- andNeg_jc Cert CertA CertB,
+check Cert (async nil (unk (A &&- B))) :- andNeg_jc Cert CertA CertB,
   check CertA (async nil (unk A)), check CertB (async nil (unk B)).
 % quantifers
 check Cert (async [some B | Theta] R) :- some_jc Cert Cert',
@@ -60,8 +59,8 @@ check Cert (async [some B | Theta] R) :- some_jc Cert Cert',
 check Cert (async nil (unk (all B))) :- all_jc Cert Cert',
   pi w\ check (Cert' w) (async nil (unk (B w))).
 % Units
-check Cert (async nil (unk t-)).
-check Cert (async [f | Theta] R).
+check _Cert (async nil (unk t-)).
+check _Cert (async [f | _Theta] _R).
 check Cert (async [t+| Theta] R) :- true_jc Cert Cert', check Cert' (async Theta R).
 % Delays
 check Cert (async [d+ A|Theta] R)   :- check Cert (async [A|Theta] R).
@@ -72,12 +71,12 @@ check Cert (async nil (unk (d- R))) :- check Cert (async nil (unk R)).
 check Cert (lfoc (A ==> B) R) :- arr_je Cert CertA CertB,
   check CertA (rfoc A), check CertB (lfoc B R).
 % disjunction
-check Cert (rfoc (A +!+ B)) :- or_je Cert Cert' Choice, 
+check Cert (rfoc (A ||+ B)) :- or_je Cert Cert' Choice, 
   ((Choice = left,  check Cert' (rfoc A)); (Choice = right, check Cert' (rfoc B))).
 % conjunction
-check Cert (rfoc (A +&+ B)) :- andPos_je Cert CertA CertB,
+check Cert (rfoc (A &&+ B)) :- andPos_je Cert CertA CertB,
    check CertA (rfoc A), check CertB (rfoc B).
-check Cert (lfoc (A -&- B) R) :- andNeg_je Cert Cert' Choice,
+check Cert (lfoc (A &&- B) R) :- andNeg_je Cert Cert' Choice,
    ((Choice = left,  check Cert' (lfoc A R));
     (Choice = right, check Cert' (lfoc B R))).
 % quantifers
