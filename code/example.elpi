@@ -1,6 +1,6 @@
 accumulate kernel/ljf-kernel.
 accumulate fpc/dd-ljf-fpc.
-accumulate user/ljf-polarize.
+accumulate client/ljf-polarize.
 
 type a,b,c,d iform.
 atomic X :- (X = a; X = b; X = c; X = d).

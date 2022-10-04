@@ -1,0 +1,55 @@
+module mimic-examples.
+% accumulate control.
+accum_sig kernel/lkf-formulas.
+accumulate client/cforms, client/lkf-polarize.
+accumulate kernel/lkf-kernel.
+accumulate fpc/mimic-lkf-fpc.
+
+type trans cform -> form.
+type test int -> prop.
+type test_all prop.
+type a, b, c, d cform.
+type example    int -> cform -> prop.
+type check_cert cform -> prop.
+
+% trans tt t-.
+% trans ff f-.
+% trans (T imp S) (A ==> B) :- trans T A, trans S B.
+% trans (T and S) (A &&- B) :- trans T A, trans S B.
+% trans (T or  S) (A ||+  B) :- trans T A, trans S B.
+% trans a (p a).
+% trans b (p b).
+% trans c (p c).
+% trans d (p d).
+polarize_pos a.
+polarize_pos b.
+polarize_pos c.
+polarize_pos d.
+
+check_cert IForm :- 
+  polarize (imp IForm IForm) Form,% (d+ Form) = Form', 
+  print "Testing" Form,
+  storage root Form =>
+  lkf_entry (aphase root [] [root]) Form.
+
+test I :- example I IForm, check_cert IForm.
+
+test_all :- 
+   example X IForm,
+   (sigma Str\ term_to_string X Str, print Str, print " "),
+   if (check_cert IForm)
+      (print "Success\n") 
+      (print "Fail\n"), 
+  fail.
+
+example 1 (and a b).
+example 2 (and a (and b c)).
+example 3 (or a (or b c)).
+example 4 (or a (imp b c)).
+example 5 (imp a b).
+example 6 (imp a (imp b c)).
+example 7 (imp (imp a b) c).
+example 8 (imp (imp (and a (or b c)) (or b c)) c).
+example 9 tt.
+example 10 ff.
+example 11 a.
