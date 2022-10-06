@@ -26,3 +26,6 @@ releaseE C (mimic I) :-
 
 releaseE C1 C2 :-
   releaseTE C1 C2.
+
+orC C1 C2 :-
+  orTC C1 C2.
