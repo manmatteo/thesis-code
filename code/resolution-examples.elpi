@@ -1,0 +1,97 @@
+module resolution-examples.
+% accumulate control.
+accum_sig kernel/lkf-formulas.
+accumulate client/cforms, client/lkf-polarize.
+accumulate kernel/lkf-kernel.
+accumulate fpc/mimic-lkf-fpc.
+accumulate fpc/resolution-checkers.
+
+% type a, b, c, d cform.
+% kind map type.
+% type map list (pair index cform) -> map.
+type run prop.
+type resolve (list (pair index cform)) -> cform -> cert -> prop.
+type r1, r2, a, b, c cform.
+atomic r1 & atomic r2 & atomic a & atomic b & atomic c.
+polarize_neg r1 & polarize_neg r2 & polarize_neg a & polarize_neg b & polarize_neg c.
+type problem  string -> cform -> cert -> (list (pair index cform)) -> o.
+type problem_old  string -> form -> cert -> (list (pair index cform)) -> o.
+% type map list (pair index cform) -> map.
+
+problem "bprop1"
+  (or (and (neg r1) (neg r2))
+  (or (and (r1)     (neg r2))
+  (r2)))
+	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 4, resolv (rid (idx 3)) (rid (idx 4)) 0] estate)
+  ([
+   pr (idx 1) (and (neg r1) (neg r2)),
+   pr (idx 2) (and r1  (neg r2)),
+   pr (idx 3) (r2),
+   pr (idx 4) (neg r2),
+   pr (idx 0) tt]).
+
+% problem_old "bprop1"
+%   ((n r1 &&+ n r2) ||-
+%   (p r1 &&+ n r2) ||-
+% 	(p r2))
+% 	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 4, resolv (rid (idx 3)) (rid (idx 4)) 0] estate)
+%   ([
+%    pr (idx 1) (n r1 &&+ n r2),
+%    pr (idx 2) (p r1 &&+ n r2),
+%    pr (idx 3) (p r2),
+%    pr (idx 4) (n r2),
+%    pr (idx 0) t+]).
+
+% problem_old "bprop2"
+% 	(p a ||- n a)
+%   (rsteps [resolv (rid (idx 1)) (rid (idx 2)) 0] estate)
+%   ([
+% pr (idx 1) (p a),
+%    pr (idx 2) (n a),
+%    pr (idx 0) t+]).
+
+% problem_old "bprop3"
+% ((p a &&+ p b) ||-
+%   (n a &&+ p b) ||-
+% 	(p a &&+ n b) ||-
+% 	(n a &&+ n b))
+%  	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 5, resolv (rid (idx 3)) (rid (idx 4)) 6, resolv (rid (idx 5)) (rid (idx 6)) 0] estate)
+%   ([
+%    pr (idx 1) (p a &&+ p b),
+%    pr (idx 2) (n a &&+ p b),
+%    pr (idx 3) (p a &&+ n b),
+%    pr (idx 4) (n a &&+ n b),
+%    pr (idx 5) (p b),
+%    pr (idx 6) (n b),
+%    pr (idx 0) t+]).
+
+% problem_old "bprop4"
+% ((p a &&+ p b &&+ n c) ||-
+%  (n a &&+ p b) ||-
+%  (p a &&+ n b &&+ n c) ||-
+%  (n a &&+ n b) ||-
+%  (p c))
+%  (rsteps [resolv (rid (idx 1)) (rid (idx 2)) 6, resolv (rid (idx 3)) (rid (idx 4)) 7, resolv (rid (idx 6)) (rid (idx 7)) 8, resolv (rid (idx 5)) (rid (idx 8)) 0] estate)
+%  ([
+% pr (idx 1) (p a &&+ p b &&+ n c),
+%    pr (idx 2) (n a &&+ p b),
+%    pr (idx 3) (p a &&+ n b &&+ n c),
+%    pr (idx 4) (n a &&+ n b),
+%    pr (idx 5) (p c),
+%    pr (idx 6) (p b &&+ n c),
+%    pr (idx 7) (n b &&+ n c),
+%    pr (idx 8) (n c),
+%    pr (idx 0) t+]).
+
+run :-
+  problem Name F Cert (Map),
+  print "Running on problem " Name ":\n",
+  resolve Map F Cert.
+resolve [] F Cert :-
+  polarize_res F PolF,
+  print "Polarized as" PolF,
+  if (lkf_entry Cert PolF)
+      (print "Success\n==============================================\n")
+		  (print "Fail\n", halt), fail.
+resolve [(pr I C) | R] F Cert :-
+  mapsto I C => resolve R F Cert.
