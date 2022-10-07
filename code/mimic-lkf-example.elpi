@@ -4,6 +4,7 @@ accum_sig kernel/lkf-formulas.
 accumulate client/cforms, client/lkf-polarize.
 accumulate kernel/lkf-kernel.
 accumulate fpc/mimic-lkf-fpc.
+accumulate fpc/dd-fpc.
 
 type trans cform -> form.
 type test int -> prop.
@@ -27,10 +28,12 @@ polarize_pos c.
 polarize_pos d.
 
 check_cert IForm :- 
-  polarize (imp IForm IForm) Form,% (d+ Form) = Form', 
+  polarize IForm Form,% (d+ Form) = Form', 
+  polarize (neg IForm) Form',
   print "Testing" Form,
-  storage root Form =>
-  lkf_entry (aphase root [] [root]) Form.
+  store root Form' 
+  (lkf_entry (aphase root [] [root]) Form).
+  % lkf_entry (dd 4) Form.
 
 test I :- example I IForm, check_cert IForm.
 
@@ -51,5 +54,5 @@ example 6 (imp a (imp b c)).
 example 7 (imp (imp a b) c).
 example 8 (imp (imp (and a (or b c)) (or b c)) c).
 example 9 tt.
-example 10 ff.
+% example 10 ff.
 example 11 a.
