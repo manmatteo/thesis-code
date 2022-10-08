@@ -22,76 +22,68 @@ problem "bprop1"
   (or (and (neg r1) (neg r2))
   (or (and (r1)     (neg r2))
   (r2)))
-	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 4, resolv (rid (idx 3)) (rid (idx 4)) 0] estate)
+	(rsteps [resolv (idx 1) (idx 2) (idx 4), resolv (idx 3) (idx 4) (idx 0)]
+  (istate [1, 2, 3]))
   ([
-   pr (idx 1) (and (neg r1) (neg r2)),
-   pr (idx 2) (and r1  (neg r2)),
-   pr (idx 3) (r2),
-   pr (idx 4) (neg r2),
-   pr (idx 0) tt]).
+   pr (idx 1) (or r1 r2),
+   pr (idx 2) (or (neg r1) r2),
+   pr (idx 3) (neg r2),
+   pr (idx 4) (r2),
+   pr (idx 0) ff]).
 
-% problem_old "bprop1"
-%   ((n r1 &&+ n r2) ||-
-%   (p r1 &&+ n r2) ||-
-% 	(p r2))
-% 	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 4, resolv (rid (idx 3)) (rid (idx 4)) 0] estate)
-%   ([
-%    pr (idx 1) (n r1 &&+ n r2),
-%    pr (idx 2) (p r1 &&+ n r2),
-%    pr (idx 3) (p r2),
-%    pr (idx 4) (n r2),
-%    pr (idx 0) t+]).
+problem "bprop2"
+	(or a (neg a))
+  (rsteps [resolv (idx 1) (idx 2) (idx 0)] (istate [1,2]))
+  ([
+   pr (idx 1) (neg a),
+   pr (idx 2) (a),
+   pr (idx 0) ff]).
 
-% problem_old "bprop2"
-% 	(p a ||- n a)
-%   (rsteps [resolv (rid (idx 1)) (rid (idx 2)) 0] estate)
-%   ([
-% pr (idx 1) (p a),
-%    pr (idx 2) (n a),
-%    pr (idx 0) t+]).
+problem "bprop3"
+  (or (and a b)
+  (or (and (neg a) b)
+  (or (and a (neg b))
+  (and (neg a) (neg b)))))
+ 	(rsteps [resolv (idx 1) (idx 2) (idx 5), resolv (idx 3) (idx 4) (idx 6), resolv (idx 5) (idx 6) (idx 0)] (istate [1,2,3,4]))
+  ([
+   pr (idx 1) (or (neg a) (neg b)),
+   pr (idx 2) (or a (neg b)),
+   pr (idx 3) (or (neg a) b),
+   pr (idx 4) (or a b),
+   pr (idx 5) (neg b),
+   pr (idx 6) (b),
+   pr (idx 0) ff]).
 
-% problem_old "bprop3"
-% ((p a &&+ p b) ||-
-%   (n a &&+ p b) ||-
-% 	(p a &&+ n b) ||-
-% 	(n a &&+ n b))
-%  	(rsteps [resolv (rid (idx 1)) (rid (idx 2)) 5, resolv (rid (idx 3)) (rid (idx 4)) 6, resolv (rid (idx 5)) (rid (idx 6)) 0] estate)
-%   ([
-%    pr (idx 1) (p a &&+ p b),
-%    pr (idx 2) (n a &&+ p b),
-%    pr (idx 3) (p a &&+ n b),
-%    pr (idx 4) (n a &&+ n b),
-%    pr (idx 5) (p b),
-%    pr (idx 6) (n b),
-%    pr (idx 0) t+]).
+problem "bprop4"
+  (or (and a (and b (neg c)))
+  (or (and (neg a) b)
+  (or (and a (and (neg b) (neg c)))
+  (or (and (neg a) (neg b))
+  c))))
+ (rsteps [resolv (idx 1) (idx 2) (idx 6), resolv (idx 3) (idx 4) (idx 7), resolv (idx 6) (idx 7) (idx 8), resolv (idx 5) (idx 8) (idx 0)]
+ (istate [1,2,3,4,5]))
+ ([
+   pr (idx 1) (or (neg a) (or (neg b) c)),
+   pr (idx 2) (or a (neg b)),
+   pr (idx 3) (or (neg a) (or b c)),
+   pr (idx 4) (or a b),
+   pr (idx 5) (neg c),
+   pr (idx 6) (or (neg b) c),
+   pr (idx 7) (or b b),
+   pr (idx 8) (c),
+   pr (idx 0) ff]).
 
-% problem_old "bprop4"
-% ((p a &&+ p b &&+ n c) ||-
-%  (n a &&+ p b) ||-
-%  (p a &&+ n b &&+ n c) ||-
-%  (n a &&+ n b) ||-
-%  (p c))
-%  (rsteps [resolv (rid (idx 1)) (rid (idx 2)) 6, resolv (rid (idx 3)) (rid (idx 4)) 7, resolv (rid (idx 6)) (rid (idx 7)) 8, resolv (rid (idx 5)) (rid (idx 8)) 0] estate)
-%  ([
-% pr (idx 1) (p a &&+ p b &&+ n c),
-%    pr (idx 2) (n a &&+ p b),
-%    pr (idx 3) (p a &&+ n b &&+ n c),
-%    pr (idx 4) (n a &&+ n b),
-%    pr (idx 5) (p c),
-%    pr (idx 6) (p b &&+ n c),
-%    pr (idx 7) (n b &&+ n c),
-%    pr (idx 8) (n c),
-%    pr (idx 0) t+]).
-
-run :-
+main :-
   problem Name F Cert (Map),
   print "Running on problem " Name ":\n",
   resolve Map F Cert.
+type polar cform -> form -> prop.
+polar X Y :- polarize_res X Y, !.
 resolve [] F Cert :-
-  polarize_res F PolF,
+  polar F PolF,
   print "Polarized as" PolF,
   if (lkf_entry Cert PolF)
-      (print "Success\n==============================================\n")
-		  (print "Fail\n", halt), fail.
+     (print "Success\n==============================================\n")
+     (print "Fail\n", halt), fail.
 resolve [(pr I C) | R] F Cert :-
   mapsto I C => resolve R F Cert.

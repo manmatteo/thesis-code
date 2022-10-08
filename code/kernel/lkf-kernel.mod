@@ -31,7 +31,7 @@ store I C G :- storage I C => G.
 
 check Cert (unf [C|Rest]) :- (isPos C ; isNegAtm C), store_kc Cert Cert' I, store I C (check Cert' (unf Rest)).
 check Cert (unf nil)      :- decide_ke Cert Cert' I, storage I P, isPos P, check Cert' (foc P).
-check Cert (unf nil)      :- cut_ke Cert CertA CertB F, negate F NF,       check CertA (unf [F]), check CertB (unf [NF]).
+check Cert (unf nil)      :- cut_ke Cert CertA CertB F, negate F NF,   check CertA (unf [F]), check CertB (unf [NF]).
 
 check _Cert (unf [t-    |_Rest]).
 check Cert (unf [d- A   |Rest]) :-                             check Cert (unf [A|Rest]).
@@ -48,3 +48,14 @@ check Cert (foc (A &&+ B)) :- andPos_ke Cert CertA CertB,         check CertA (f
 check Cert (foc (some B))  :- some_ke  Cert Cert' T,              check Cert' (foc (B T)).
 check Cert (foc (A ||+ B)) :- orPos_ke Cert Cert' C, ((C = left,  check Cert' (foc A));
                                                       (C = right, check Cert' (foc B))).
+
+negate t+ f-  &  negate t- f+.
+negate f+ t-  &  negate f- t+.
+negate (B &&- C) (B' ||+ C') :- negate B B', negate C C'.
+negate (B &&+ C) (B' ||- C') :- negate B B', negate C C'.
+negate (B ||- C) (B' &&+ C') :- negate B B', negate C C'.
+negate (B ||+ C) (B' &&- C') :- negate B B', negate C C'.
+negate (all B)  (some B') :- pi x\ negate (B x) (B' x).
+negate (some B) (all B') :- pi x\ negate (B x) (B' x).
+negate (p A) (n A) :- atomic A.
+negate (n A) (p A) :- atomic A.

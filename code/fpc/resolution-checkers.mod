@@ -6,15 +6,16 @@ kind state type. % additional information which might be required by implementin
 type estate state. %empty state
 type istate list int -> state. %state of input formula operands indices
 
-type res_step resolv -> rclause -> rclause -> int -> o.
-type resolv rclause -> rclause -> int -> resolv.
+type res_step resolv -> index -> index -> index -> o.
+type resolv index -> index -> index -> resolv.
 type rsteps list resolv -> state -> cert. % sequence of steps and a state
 type resteps list resolv -> cert. % sequence of steps
 
-type dlist rclause -> rclause -> cert.
+% type dlist rclause -> rclause -> cert.
+type dlist index -> index -> cert.
 
-type rid index -> rclause.
-type dlist2 rclause -> cert.
+% type rid index -> rclause.
+type dlist2 index -> cert.
 type dlist3 cert.
 
 type idx      int -> index.  % These label clauses which are never literals.
@@ -45,16 +46,16 @@ release_ke dlist3 dlist3.
 % Note that since they might be negative, we will need sometimes to decide on the cut formula
 % This cut formula is indexed by lit but all other resolvents from previous
 % steps are indexed by idx, so we need to either decide on C1, C2 or lit
-decide_ke (dlist (rid I) C2) (dlist2 C2) I.
-decide_ke (dlist C1 (rid I)) (dlist2 C1) I.
+decide_ke (dlist I C2) (dlist2 C2) I.
+decide_ke (dlist C1 I) (dlist2 C1) I.
 decide_ke (dlist C1 _C2) (dlist2 C1) lit.
 decide_ke (dlist _C1 C2) (dlist2 C2) lit.
-decide_ke (dlist2 (rid I)) dlist3 I.
+decide_ke (dlist2 I) dlist3 I.
 decide_ke (dlist2 _) dlist3 lit.
 decide_ke dlist3 done lit.
 % the last cut is over t+ and we need to eliminate its negation
 false_kc (dlist C1 C2) (dlist C1 C2).
-
+true_ke _List.
 
 %% Main backbone
 % gets a sequent |- A &+& B, C, D &+& E, etc.
@@ -76,15 +77,14 @@ store_kc (rsteps A estate) (rsteps A estate) (idx I):-
 store_kc (rsteps A (istate [I|IL])) (rsteps A (istate IL)) (idx I).
 store_kc (rsteps A _) (rsteps A _) (idx _I). % storing all other none-indexed formulas
 
-% cut_ke A B C D :- fail. % this is required due to a bug in Teyjus where no backtracking is performed when a relation is defined in two different files. Backtracking is performed when we add this fail.
 cut_ke (rsteps [R] B) (dlist I J) (rsteps [] B) f- :-
   res_step R I J K,
-  mapsto (idx K) tt.
+  mapsto K ff.
 % Cuts correspond to resolve steps except for the last resolve
 cut_ke (rsteps [R,R1 | RR] B) (dlist I J) (rsteps [R1|RR] B) NC :-
   res_step R I J K,
-  mapsto (idx K) CutForm,
-  polarize_res (neg CutForm) NC. %we would like to do the dlist on the left and also to input the resolvent as cut formulas, therefore we must negateForm it.
+  mapsto K CutForm,
+  polarize_res (CutForm) NC. %we would like to do the dlist on the left and also to input the resolvent as cut formulas, therefore we must negateForm it.
 res_step (resolv I J K) I J K.
 
 % this decide is being called after the last cut
