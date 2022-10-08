@@ -1,0 +1,137 @@
+module resolution-examples.
+% accumulate control.
+accum_sig kernel/lkf-formulas.
+accumulate client/cforms, client/lkf-polarize.
+accumulate kernel/lkf-kernel.
+accumulate fpc/mimic-lkf-fpc.
+accumulate fpc/resolution-checkers.
+
+% type a, b, c, d cform.
+% kind map type.
+% type map list (pair index cform) -> map.
+type run prop.
+type resolve (list (pair index cform)) -> cform -> cert -> prop.
+type a, b, q, r, p1 cform.
+type a1, a2, a3, a4, a5 cform.
+atomic p1 & atomic q & atomic r.
+polarize_neg p1 & polarize_neg q & polarize_neg r.
+atomic a1 & atomic a2 & atomic a3 & atomic a4 & atomic a5.
+polarize_neg a1 & polarize_neg a2 & polarize_neg a3 & polarize_neg a4 & polarize_neg a5.
+type problem  string -> cform -> cert -> (list (pair index cform)) -> o.
+type problem_old  string -> form -> cert -> (list (pair index cform)) -> o.
+% type map list (pair index cform) -> map.
+
+type tseitlit cform -> cform.
+atomic (tseitlit _).
+polarize_neg (tseitlit _).
+
+problem "tseitin" Goal Cert ClauseMap :-
+Goal =
+(or (neg a1)
+(or (and a1 (neg a2))
+(or (and a1 (neg a3))
+(or (and a2 (and p1 (neg q)))
+(or (and a2 (and q (neg p1)))
+(or (and a3 (and p1 (neg r)))
+(or (and a3 (and (neg a4) (neg a5)))
+(or (and a4 (neg q))
+(or (and a4 r)
+(or (and a5 (neg p1))
+(and a5 q))))))))))),
+Cert = (rsteps [resolv (idx 1) (idx 2) (idx 12),
+resolv (idx 1) (idx 3) (idx 13),
+resolv (idx 12) (idx 4) (idx 14),
+resolv (idx 12) (idx 5) (idx 15),
+resolv (idx 6) (idx 13) (idx 16),
+resolv (idx 7) (idx 13) (idx 17),
+resolv (idx 10) (idx 14) (idx 18),
+resolv (idx 8) (idx 15) (idx 19),
+resolv (idx 19) (idx 16) (idx 20),
+resolv (idx 20) (idx 9) (idx 21),
+resolv (idx 11) (idx 18) (idx 22),
+resolv (idx 17) (idx 22) (idx 23),
+resolv (idx 23) (idx 21) (idx 0)]
+(istate [1,2,3,4,5,6,7,8,9,10,11])),
+ClauseMap = ([pr (idx 1) a1,
+pr (idx 2)  (or (neg a1) a2),
+pr (idx 3)  (or (neg a1) a3),
+pr (idx 4)  (or (neg a2) (or (neg p1) q)),
+pr (idx 5)  (or (neg a2) (or (neg q) p1)),
+pr (idx 6)  (or (neg a3) (or (neg p1) r)),
+pr (idx 7)  (or (neg a3) (or a4 a5)),
+pr (idx 8)  (or (neg a4) q),
+pr (idx 9)  (or (neg a4) (neg r)),
+pr (idx 10) (or (neg a5) p1),
+pr (idx 11) (or (neg a5) (neg q)),
+%
+pr (idx 12)  a2,
+pr (idx 13)  a3,
+pr (idx 14)  (or (neg p1) q),
+pr (idx 15)  (or (neg q) p1),
+pr (idx 16)  (or (neg p1) r),
+pr (idx 17)  (or a4 a5),
+pr (idx 18)  (or (neg a5) q),
+pr (idx 19)  (or (neg a4) p1),
+pr (idx 20)  (or (neg a4) r),
+pr (idx 21)  (neg a4),
+pr (idx 22)  (neg a5),
+pr (idx 23)  a4,
+pr (idx 0)  ff]).
+
+main :-
+  problem Name F Cert (Map),
+  print "Running on problem " Name ":\n",
+  resolve Map F Cert.
+type polar cform -> form -> prop.
+polar X Y :- polarize_res X Y, !.
+resolve [] F Cert :-
+  polar F PolF,
+  print "Polarized as" PolF,
+  if (lkf_entry Cert PolF)
+     (print "Success\n==============================================\n")
+     (print "Fail\n", halt), fail.
+resolve [(pr I C) | R] F Cert :-
+  mapsto I C => resolve R F Cert.
+
+% Fors1 = (or (and p1 (neg q)) (and q (neg p1))),
+% Fors2 = (or (and p1 (neg r)) (and (or (neg q) r) (or (neg p1) q))),
+% F = or Fors1 Fors2,
+% ([pr (idx 1)  (tseitlit F),
+% pr (idx 2)  (or (neg (tseitlit F)) (tseitlit Fors1)),
+% pr (idx 3)  (or (neg (tseitlit F)) (tseitlit Fors2)),
+% pr (idx 4)  (or (neg (tseitlit Fors1)) (or (neg p1) q)),
+% pr (idx 5)  (or (neg (tseitlit Fors1)) (or (neg q) p1)),
+% pr (idx 6)  (or (neg (tseitlit Fors2)) (or (neg p1) r)),
+% pr (idx 7)  (or (neg (tseitlit Fors2)) (or (tseitlit (and q (neg r))) (tseitlit (and p1 (neg q))))),
+% pr (idx 8)  (or (neg (tseitlit (and q (neg r)))) q),
+% pr (idx 9)  (or (neg (tseitlit (and q (neg r)))) (neg r)),
+% pr (idx 10) (or (neg (tseitlit (and p1 (neg q)))) p1),
+% pr (idx 11) (or (neg (tseitlit (and p1 (neg q)))) (neg q)),
+% %
+% pr (idx 12)  (tseitlit Fors1),
+% pr (idx 13)  (tseitlit Fors2),
+% pr (idx 14)  (or (neg p1) q),
+% pr (idx 15)  (or (neg q) p1),
+% pr (idx 16)  (or (neg p1) r),
+% pr (idx 17)  (or (tseitlit (and q (neg r))) (tseitlit (and p1 (neg q)))),
+% pr (idx 18)  (or (neg (tseitlit (and p1 (neg q)))) q),
+% pr (idx 19)  (or (neg (tseitlit (and q (neg r)))) p1),
+% pr (idx 20)  (or (neg (tseitlit (and q (neg r)))) r),
+% pr (idx 21)  (neg (tseitlit (and q (neg r)))),
+% pr (idx 22)  (neg (tseitlit (and p1 (neg q)))),
+% pr (idx 23)  (tseitlit (and q (neg r))),
+% pr (idx 0)  ff]) :-
+% Fors1 = (or (and p1 (neg q)) (and q (neg p1))),
+% Fors2 = (or (and p1 (neg r)) (and (or (neg q) r) (or (neg p1) q))),
+% F = or Fors1 Fors2,
+% Goal =
+% (or (and (tseitlit F) (neg (tseitlit Fors1)))
+% (or (and (tseitlit F) (neg (tseitlit Fors2)))
+% (or (and (tseitlit Fors1) (and p1 (neg q)))
+% (or (and (tseitlit Fors1) (and q (neg p1)))
+% (or (and (tseitlit Fors2) (and p1 (neg r)))
+% (or (and (tseitlit Fors2) (and (neg (tseitlit (and q (neg r)))) (neg (tseitlit (and p1 (neg q))))))
+% (or (and (tseitlit (and q (neg r))) (neg q))
+% (or (and (tseitlit (and q (neg r))) r)
+% (or (and (tseitlit (and p1 (neg q))) (neg p1))
+% (and (tseitlit (and p1 (neg q))) q)))))))))).

@@ -9,7 +9,7 @@ type istate list int -> state. %state of input formula operands indices
 type res_step resolv -> index -> index -> index -> o.
 type resolv index -> index -> index -> resolv.
 type rsteps list resolv -> state -> cert. % sequence of steps and a state
-type resteps list resolv -> cert. % sequence of steps
+type rstepsi index -> list resolv -> state -> cert. % sequence of steps and a state
 
 % type dlist rclause -> rclause -> cert.
 type dlist index -> index -> cert.
@@ -75,16 +75,16 @@ store_kc (rsteps A estate) (rsteps A estate) (idx I):-
   mapsto (idx I) _C.
 % the same but using given indices for storing the operands
 store_kc (rsteps A (istate [I|IL])) (rsteps A (istate IL)) (idx I).
-store_kc (rsteps A _) (rsteps A _) (idx _I). % storing all other none-indexed formulas
+store_kc (rstepsi K A B) (rsteps A B) K. % storing all other none-indexed formulas
 
 cut_ke (rsteps [R] B) (dlist I J) (rsteps [] B) f- :-
   res_step R I J K,
   mapsto K ff.
 % Cuts correspond to resolve steps except for the last resolve
-cut_ke (rsteps [R,R1 | RR] B) (dlist I J) (rsteps [R1|RR] B) NC :-
+cut_ke (rsteps [R,R1 | RR] B) (dlist I J) (rstepsi K [R1|RR] B) NC :-
   res_step R I J K,
   mapsto K CutForm,
-  polarize_res (CutForm) NC. %we would like to do the dlist on the left and also to input the resolvent as cut formulas, therefore we must negateForm it.
+  polarize_res (CutForm) NC.%  print "Let's cut with" NC "at" K, input_line std_in _X.
 res_step (resolv I J K) I J K.
 
 % this decide is being called after the last cut

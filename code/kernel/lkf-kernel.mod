@@ -29,9 +29,11 @@ isPos A :- isPosForm A ; isPosAtm A.
 
 store I C G :- storage I C => G.
 
+:if "INTERACTIVE-DECIDE" check Cert (unf nil)      :- decide_ke Cert Cert' I, print "Attempt decide on" I, storage I P, print "Retrieve" P, isPos P, print "decide cert" Cert "made me decide on" P "at" I, check Cert' (foc P), !.
+
 check Cert (unf [C|Rest]) :- (isPos C ; isNegAtm C), store_kc Cert Cert' I, store I C (check Cert' (unf Rest)).
 check Cert (unf nil)      :- decide_ke Cert Cert' I, storage I P, isPos P, check Cert' (foc P).
-check Cert (unf nil)      :- cut_ke Cert CertA CertB F, negate F NF,   check CertA (unf [F]), check CertB (unf [NF]).
+check Cert (unf nil)      :- cut_ke Cert CertA CertB F, negate F NF, check CertA (unf [F]), check CertB (unf [NF]).
 
 check _Cert (unf [t-    |_Rest]).
 check Cert (unf [d- A   |Rest]) :-                             check Cert (unf [A|Rest]).
@@ -49,6 +51,7 @@ check Cert (foc (some B))  :- some_ke  Cert Cert' T,              check Cert' (f
 check Cert (foc (A ||+ B)) :- orPos_ke Cert Cert' C, ((C = left,  check Cert' (foc A));
                                                       (C = right, check Cert' (foc B))).
 
+:if "DEBUG-NEGATE" negate X _Y :- print "negate" X, fail.
 negate t+ f-  &  negate t- f+.
 negate f+ t-  &  negate f- t+.
 negate (B &&- C) (B' ||+ C') :- negate B B', negate C C'.

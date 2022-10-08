@@ -77,6 +77,7 @@ polarize+ (neg (imp B C))   D :- polarize+ (neg (or (neg B) C)) D.
 polarize+ (neg (equiv B C)) D :- polarize+ (neg (and (imp B C) (imp C B))) D.
 
 % Polarization for resolution
+:if "DEBUG-POLARIZE" polarize_res A B :- print "polarize_res" A B, fail.
 polarize_res tt t+.
 polarize_res ff f-.
 polarize_res (and B C) (B' &&+ C') :- polarize_res B B', polarize_res C C'.
