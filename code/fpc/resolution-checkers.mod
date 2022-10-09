@@ -35,10 +35,10 @@ andPos_ke dlist3 dlist3 dlist3.
 orNeg_kc (dlist C1 C2) (dlist C1 C2).
 orNeg_kc (dlist2 C1) (dlist2 C1).
 orNeg_kc dlist3 dlist3.
-initial_ke (dlist _ _) _.
-initial_ke (dlist2 _) _.
-initial_ke dlist3 _.
-initial_ke done _.
+initial_ke (dlist _ _) lit.
+initial_ke (dlist2 I)  L :- (L = lit; L = I).
+initial_ke dlist3  lit.
+initial_ke done  lit.
 release_ke (dlist C1 C2) (dlist C1 C2).
 release_ke (dlist2 C1) (dlist2 C1).
 release_ke dlist3 dlist3.
