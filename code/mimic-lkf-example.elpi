@@ -8,7 +8,7 @@ accumulate fpc/dd-fpc.
 
 type trans cform -> form.
 type test int -> prop.
-type test_all prop.
+type run prop.
 type a, b, c, d cform.
 type example    int -> cform -> prop.
 type check_cert cform -> prop.
@@ -37,7 +37,7 @@ check_cert IForm :-
 
 test I :- example I IForm, check_cert IForm.
 
-test_all :- 
+main :- 
    example X IForm,
    (sigma Str\ term_to_string X Str, print Str, print " "),
    if (check_cert IForm)
