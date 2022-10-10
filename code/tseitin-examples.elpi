@@ -82,7 +82,8 @@ std.map
   (and (or (neg p1) r) (or (and q (neg r)) (and p1 (neg q)))),
   (and q (neg r)),
   (and p1 (neg q)) ]
-  polarize_tseitin PolTseitin,
+  polarize_res TseitClauses,
+std.map TseitClauses polarize_tseitin PolTseitin,
 std.map2 [(n a1), (n a2), (n a3), (n a4), (n a5)] PolTseitin (x\ y\ z\ z = detseitin x y) TseitinMap.
 
 main :-
@@ -91,7 +92,7 @@ main :-
   print TseitinMap,
   TseitinMap => resolve Map F Cert.
 type polar cform -> form -> prop.
-polar X Y :- polarize_tseitin X Y, !.
+polar X Y :- polarize_res X X', polarize_tseitin X' Y, !.
 resolve [] F Cert :-
   polar F PolF,
   print "Polarized as" PolF,

@@ -19,4 +19,4 @@ type some_ke                 cert -> cert -> A -> o.
 type store_kc                cert -> cert -> index -> o.
 type true_ke                 cert -> o.
 
-
+type eta_initial             cert -> index -> o.

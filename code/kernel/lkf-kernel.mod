@@ -42,11 +42,11 @@ check Cert (unf [A ||- B|Rest]) :- orNeg_kc  Cert Cert',       check Cert' (unf 
 check Cert (unf [A &&- B|Rest]) :- andNeg_kc Cert CertA CertB, check CertA (unf [A|Rest]), check CertB (unf [B|Rest]).
 check Cert (unf [all B  |Rest]) :- all_kc    Cert Cert', pi w\ check (Cert' w) (unf [B w|Rest]).
 
-:if "MIMIC" check Cert (foc A)     :- print "Welcome", eta_initial Cert I, print "negate now", negate A A', print "Negated is" A', print_storage, storage I A', print "found".
+check Cert (foc (d+ A))    :-                                     check Cert  (foc A).
 check Cert (foc t+)        :- true_ke Cert.
 check Cert (foc (p A))     :- initial_ke Cert I, storage I (n A).%, print "Initial was on" I "from" Cert.
-check Cert (foc (d+ A))    :-                                     check Cert  (foc A).
 check Cert (foc N)         :- isNeg N, release_ke Cert Cert',     check Cert' (unf [N]).
+:if "MIMIC" check Cert (foc A)     :- print "Welcome", eta_initial Cert I, print "negate now", negate A A', print "Negated is" A', print_storage, wait, storage I A', print "found".
 check Cert (foc (A &&+ B)) :- andPos_ke Cert CertA CertB,         check CertA (foc A), check CertB (foc B).
 check Cert (foc (some B))  :- some_ke  Cert Cert' T,              check Cert' (foc (B T)).
 check Cert (foc (A ||+ B)) :- orPos_ke Cert Cert' C, ((C = left,  check Cert' (foc A));
@@ -70,5 +70,6 @@ negate (n A) (p A) :- !, atomic A.
 type print_storage prop.
 print_storage :- std.findall (storage _X _Y) L, print L.
 
+type wait prop.
 :if "WAIT" wait :- input_line std_in _X.
 wait.

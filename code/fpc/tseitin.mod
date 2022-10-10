@@ -12,9 +12,7 @@ decide_ke C C3 J :-
   print "Tseitin decision on" J, wait.
 
 eta_initial C I :-
-  print "can eta initial?",
-  initial_tke C I,
-  print "Eta initial", wait.
+  initial_tke C I.
 
 cut_ke C C2 (litcert C3) F' :-
   decide_tke C C1 I,
