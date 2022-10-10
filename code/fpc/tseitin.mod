@@ -1,31 +1,55 @@
-decideE C1 C2 I :-
-  decideTE C1 C2 I.
+accumulate mimic-lkf-fpc.
 
-decideE C C3 J :-
-  decideTE C C1 I,
-  andTE    C1 C2 C3,
-  initTE   C3 J.
+release_ke C1 C2 :-
+  release_tke C1 C2.
 
-cutE C C2 (lit C3) F :-
-  decideTE C C1 I,
-  andTE    C1 C2 C3,
-  tseitin_clause I F,
-  releaseTE C2 C4.
+decide_ke C C3 J :-
+  decide_tke C C1 _I,
+  % print "if",
+  andPos_tke C1 C2 C3,
+  initial_tke C2 J,
+  J = (idx _),
+  print "Tseitin decision on" J, wait.
 
-releaseE (lit C) (lit C).
-storeC (lit C) (litidx C I) I.
-decideE (litidx C I) C I.
+eta_initial C I :-
+  print "can eta initial?",
+  initial_tke C I,
+  print "Eta initial", wait.
 
-storeC C1 C2 I :-
-  storeTC C1 C2 I.
+cut_ke C C2 (litcert C3) F' :-
+  decide_tke C C1 I,
+  andPos_tke C1 C2 C3,
+  release_tke C2 _C4,
+  mapsto I F, polarize_res F F'.
 
-initE C I :-
-  initTE C I.
-releaseE C (mimic I) :-
-  initTE C I.
+decide_ke C1 C2 I :-
+  decide_tke C1 C2 I.
 
-releaseE C1 C2 :-
-  releaseTE C1 C2.
+release_ke (litcert C) (litcert C).
+store_kc (litcert C) (litidx C I) I.
+decide_ke (litidx C I) C I.
 
-orC C1 C2 :-
-  orTC C1 C2.
+store_kc C1 C2 I :-
+  store_tkc C1 C2 I.
+
+initial_ke C I :-
+  initial_tke C I.
+% release_ke C (aphase I [] [I]) :-
+%   initial_tke C I.
+  % print "Found initial on" I ", should mimic with cert" C,
+  % read X, X, read _Y.
+
+orNeg_kc C1 C2 :-
+  orNeg_tkc C1 C2.
+orPos_ke C C _Choice.
+
+cut_ke C1 C2 C3 F' :-
+  cut_tke C1 C2 C3 F,
+  print "Retrieved" F "for resolution cut",
+  detseitin F F', print "detseitin!" F'.
+
+detseitin (A ||- B) (A' ||- B') :- detseitin A A', detseitin B B'.
+detseitin (A ||+ B) (A' ||+ B') :- detseitin A A', detseitin B B'.
+detseitin (A &&- B) (A' &&- B') :- detseitin A A', detseitin B B'.
+detseitin (A &&+ B) (A' &&+ B') :- detseitin A A', detseitin B B'.
+detseitin (d+ A) (d+ A') :- detseitin A A'.

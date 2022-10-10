@@ -100,3 +100,29 @@ polarize_res (neg A) (p A)       :- atomic A, polarize_neg A.
 polarize_res (neg A) (n A)       :- atomic A, polarize_pos A.
 polarize_res (neg (imp B C))   D :- polarize_res (neg (or (neg B) C)) D.
 polarize_res (neg (equiv B C)) D :- polarize_res (neg (and (imp B C) (imp C B))) D.
+
+% Polarization for Tseitin
+%% NOTE!!!! In the thesis I define this *ON TOP* of a polarization. I must do this here as well!!
+:if "DEBUG-POLARIZE" polarize_tseitin A B :- print "polarize_tseitin" A B, fail.
+polarize_tseitin tt t+.
+polarize_tseitin ff f-.
+polarize_tseitin (and B C) (B' &&+ C') :- polarize_tseitin B B', polarize_tseitin C C'.
+polarize_tseitin (or  B C) (B' ||+ C') :- polarize_tseitin B B', polarize_tseitin C C'.
+polarize_tseitin (forall B) (d+ (all B'))   :- pi x\ polarize_tseitin (B x) (B' x).
+polarize_tseitin (exists B) (some B')  :- pi x\ polarize_tseitin (B x) (B' x).
+polarize_tseitin A (n A) :- atomic A, polarize_neg A.
+polarize_tseitin A (p A) :- atomic A, polarize_pos A.
+polarize_tseitin (imp B C)   D :- polarize_tseitin (or (neg B) C) D.
+polarize_tseitin (equiv B C) D :- polarize_tseitin (and (imp B C) (imp C B)) D.
+
+polarize_tseitin (neg tt) f-.
+polarize_tseitin (neg ff) f+  &  polarize_tseitin (neg ff) f-.
+polarize_tseitin (neg (and B C)) (B' ||+ C') :- polarize_tseitin (neg B) B', polarize_tseitin (neg C) C'.
+polarize_tseitin (neg (or  B C)) (B' &&+ C') :- polarize_tseitin (neg B) B', polarize_tseitin (neg C) C'.
+polarize_tseitin (neg (forall B)) (some B')   :- pi x\ polarize_tseitin (neg (B x)) (B' x).
+polarize_tseitin (neg (exists B)) (d+ (all  B'))   :- pi x\ polarize_tseitin (neg (B x)) (B' x).
+polarize_tseitin (neg (neg B)) C     :- polarize_tseitin B C.
+polarize_tseitin (neg A) (p A)       :- atomic A, polarize_neg A.
+polarize_tseitin (neg A) (n A)       :- atomic A, polarize_pos A.
+polarize_tseitin (neg (imp B C))   D :- polarize_tseitin (neg (or (neg B) C)) D.
+polarize_tseitin (neg (equiv B C)) D :- polarize_tseitin (neg (and (imp B C) (imp C B))) D.

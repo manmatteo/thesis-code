@@ -26,36 +26,36 @@ type done cert.
 type mapsto index -> cform -> o.
 % Proving the sequent can be proved by deciding clauses C1, C2 and some other clause.
 
-store_kc (dlist C1 C2) (dlist C1 C2) lit.
-store_kc (dlist2 C1) (dlist2 C1) lit.
-store_kc dlist3 dlist3 lit.
-andPos_ke (dlist C1 C2) (dlist C1 C2) (dlist C1 C2).
-andPos_ke (dlist2 C1) (dlist2 C1) (dlist2 C1).
-andPos_ke dlist3 dlist3 dlist3.
-orNeg_kc (dlist C1 C2) (dlist C1 C2).
-orNeg_kc (dlist2 C1) (dlist2 C1).
-orNeg_kc dlist3 dlist3.
-initial_ke (dlist _ _) lit.
-initial_ke (dlist2 I) L :- (L = lit; L = I).
-initial_ke dlist3 lit.
-initial_ke done lit.
-release_ke (dlist C1 C2) (dlist C1 C2).
-release_ke (dlist2 C1) (dlist2 C1).
-release_ke dlist3 dlist3.
+store_tkc (dlist C1 C2) (dlist C1 C2) lit.
+store_tkc (dlist2 C1) (dlist2 C1) lit.
+store_tkc dlist3 dlist3 lit.
+andPos_tke (dlist C1 C2) (dlist C1 C2) (dlist C1 C2).
+andPos_tke (dlist2 C1) (dlist2 C1) (dlist2 C1).
+andPos_tke dlist3 dlist3 dlist3.
+orNeg_tkc (dlist C1 C2) (dlist C1 C2).
+orNeg_tkc (dlist2 C1) (dlist2 C1).
+orNeg_tkc dlist3 dlist3.
+initial_tke (dlist _ _) lit.
+initial_tke (dlist2 I) L :- (L = lit; L = I).
+initial_tke dlist3 lit.
+initial_tke done lit.
+release_tke (dlist C1 C2) (dlist C1 C2).
+release_tke (dlist2 C1) (dlist2 C1).
+release_tke dlist3 dlist3.
 % here we decide the clauses for proving -C1,-C2,C3 of decide depth 3.
 % Note that since they might be negative, we will need sometimes to decide on the cut formula
 % This cut formula is indexed by lit but all other resolvents from previous
 % steps are indexed by idx, so we need to either decide on C1, C2 or lit
-decide_ke (dlist I C2) (dlist2 C2) I.
-decide_ke (dlist C1 I) (dlist2 C1) I.
-decide_ke (dlist C1 _C2) (dlist2 C1) lit.
-decide_ke (dlist _C1 C2) (dlist2 C2) lit.
-decide_ke (dlist2 I) dlist3 I.
-decide_ke (dlist2 _) dlist3 lit.
-decide_ke dlist3 done lit.
+decide_tke (dlist I C2) (dlist2 C2) I.
+decide_tke (dlist C1 I) (dlist2 C1) I.
+decide_tke (dlist C1 _C2) (dlist2 C1) lit.
+decide_tke (dlist _C1 C2) (dlist2 C2) lit.
+decide_tke (dlist2 I) dlist3 I.
+decide_tke (dlist2 _) dlist3 lit.
+decide_tke dlist3 done lit.
 % the last cut is over t+ and we need to eliminate its negation
-false_kc (dlist C1 C2) (dlist C1 C2).
-true_ke _List.
+false_tkc (dlist C1 C2) (dlist C1 C2).
+true_tke _List.
 
 %% Main backbone
 % gets a sequent |- A &+& B, C, D &+& E, etc.
@@ -64,29 +64,29 @@ true_ke _List.
 % eigencopy A A.
 
 % do we need it here?
-release_ke (rsteps A B) (rsteps A B).
+release_tke (rsteps A B) (rsteps A B).
 % breaking the !-! in the formula
-orNeg_kc (rsteps A B) (rsteps A B).
+orNeg_tkc (rsteps A B) (rsteps A B).
 % storing when the index is not given and therefore, not used by experts
 % storing true (last cut)
-store_kc (rsteps [] B) (rsteps [] B) tlit.
+store_tkc (rsteps [] B) (rsteps [] B) tlit.
 % storing the operands of the !-!
-store_kc (rsteps A estate) (rsteps A estate) (idx I):-
+store_tkc (rsteps A estate) (rsteps A estate) (idx I):-
   mapsto (idx I) _C.
 % the same but using given indices for storing the operands
-store_kc (rsteps A (istate [I|IL])) (rsteps A (istate IL)) (idx I).
-store_kc (rstepsi K A B) (rsteps A B) K. % storing all other none-indexed formulas
+store_tkc (rsteps A (istate [I|IL])) (rsteps A (istate IL)) (idx I).
+store_tkc (rstepsi K A B) (rsteps A B) K. % storing all other none-indexed formulas
 
-cut_ke (rsteps [R] B) (dlist I J) (rsteps [] B) f- :-
+cut_tke (rsteps [R] B) (dlist I J) (rsteps [] B) f- :-
   res_step R I J K,
   mapsto K ff.
 % Cuts correspond to resolve steps except for the last resolve
-cut_ke (rsteps [R,R1 | RR] B) (dlist I J) (rstepsi K [R1|RR] B) NC :-
+cut_tke (rsteps [R,R1 | RR] B) (dlist I J) (rstepsi K [R1|RR] B) NC :-
   res_step R I J K,
   mapsto K CutForm,
-  polarize_res (CutForm) NC.%  print "Let's cut with" NC "at" K, input_line std_in _X.
+  polarize_res (CutForm) NC, print "Let's resolution-cut with" NC "at" K, wait.
 res_step (resolv I J K) I J K.
 
 % this decide is being called after the last cut
-decide_ke (rsteps [] _B) done tlit.
-true_ke (done).
+decide_tke (rsteps [] _B) done tlit.
+true_tke (done).
