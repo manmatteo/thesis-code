@@ -1,18 +1,24 @@
 kind ty, tm type.
 type i,o ty.
 type of tm -> ty -> prop.
-type (==>) ty -> ty -> ty.
+type (-->) ty -> ty -> ty.
 type abs (tm -> tm) -> tm.
 type app tm -> tm -> tm.
 
+type arr tm.
+type all tm.
+
+of arr   (o --> o --> o).
+of all    ((i --> o) --> o).
+
 of (app T U) B :-
-  of T (A ==> B),
+  of T (A --> B),
   of U A.
 
-of (abs T) (A ==> B) :-
+of (abs T) (A --> B) :-
   pi x\ of x A =>
   of (T x) B.
 
 main :-
-  of (abs x\ abs y\ app x y) X,
-  print X.
+  pi p\ of p (i --> o) =>
+    of (app all (abs x\ app p x)) o.
