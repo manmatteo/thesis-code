@@ -8,8 +8,8 @@ type app tm -> tm -> tm.
 type arr tm.
 type all tm.
 
-of arr   (o --> o --> o).
-of all    ((i --> o) --> o).
+of arr (o --> o --> o).
+of all ((i --> o) --> o).
 
 of (app T U) B :-
   of T (A --> B),
