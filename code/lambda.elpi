@@ -1,13 +1,13 @@
 kind ty, tm type.
-type i,o ty.
-type of tm -> ty -> prop.
 type (-->) ty -> ty -> ty.
 type abs (tm -> tm) -> tm.
 type app tm -> tm -> tm.
 
+type i,o ty.
 type arr tm.
 type all tm.
 
+type of tm -> ty -> prop.
 of arr (o --> o --> o).
 of all ((i --> o) --> o).
 
