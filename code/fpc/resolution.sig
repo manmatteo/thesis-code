@@ -1,21 +1,21 @@
 % Deduced clauses
 type lemma int -> form -> o.
-% Label of clauses
+% Stored clauses
 type idx int -> index.
-% Label for stored literals
+% Stored literals
 type lit index.
-% Needed just for the initial clerks
+% Initial indexing
 type start int -> list cert -> cert.
 % List of resolution triples
 kind triple type.
 type rlist list triple -> cert.
-% Extract the index of the new clause
+% Extract index of new clause
 type rlisti int -> list triple -> cert.
-% Introduce a resolvent subproof
+% Introduce resolvent subproof
 type resolve int -> int -> int -> triple.
 % Check resolution step
 type dlist list int -> cert.
-% Must do an initial immediately
+% Immediately end with initial
 type rdone cert.
 % End of the left premise of cut
 type done cert.
