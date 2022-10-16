@@ -21,4 +21,5 @@ of (abs T) (A --> B) :-
 
 main :-
   pi p\ of p (i --> o) =>
-    of (app all (abs x\ app p x)) o.
+  pi q\ of q (i --> o) =>
+    of (app all (abs x\ app (app arr (app p x)) (app q x))) o.

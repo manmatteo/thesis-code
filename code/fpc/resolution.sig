@@ -11,11 +11,11 @@ kind triple type.
 type rlist list triple -> cert.
 % Extract index of new clause
 type rlisti int -> list triple -> cert.
-% Introduce resolvent subproof
+% Resolvent triple
 type resolve int -> int -> int -> triple.
 % Check resolution step
 type dlist list int -> cert.
-% Immediately end with initial
+% End with initial
 type rdone cert.
-% End of the left premise of cut
+% End of left cut premise
 type done cert.
