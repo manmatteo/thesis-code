@@ -5,11 +5,9 @@ release_ke C1 C2 :-
 
 decide_ke C C3 J :-
   decide_tke C C1 _I,
-  % print "if",
   andPos_tke C1 C2 C3,
   initial_tke C2 J,
-  J = (idx _),
-  print "Tseitin decision on" J, wait.
+  J = (idx _).
 
 eta_initial C I :-
   initial_tke C I.
@@ -32,19 +30,18 @@ store_kc C1 C2 I :-
 
 initial_ke C I :-
   initial_tke C I.
-% release_ke C (aphase I [] [I]) :-
-%   initial_tke C I.
-  % print "Found initial on" I ", should mimic with cert" C,
-  % read X, X, read _Y.
+
+release_ke C (mimic I) :-
+  initial_tke C I.
 
 orNeg_kc C1 C2 :-
   orNeg_tkc C1 C2.
+
 orPos_ke C C _Choice.
 
 cut_ke C1 C2 C3 F' :-
   cut_tke C1 C2 C3 F,
-  print "Retrieved" F "for resolution cut",
-  detseitin F F', print "detseitin!" F'.
+  detseitin F F'.
 
 detseitin (A ||- B) (A' ||- B') :- detseitin A A', detseitin B B'.
 detseitin (A ||+ B) (A' ||+ B') :- detseitin A A', detseitin B B'.
