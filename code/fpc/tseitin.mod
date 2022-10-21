@@ -39,11 +39,13 @@ orNeg_kc C1 C2 :-
 
 orPos_ke C C _Choice.
 
-cut_ke C1 C2 C3 F' :-
+cut_ke C1 C2 C3 TF :-
   cut_tke C1 C2 C3 F,
-  detseitin F F'.
+  detseitin F DF, nnf DF PF, polarize_tseitin PF TF.
 
-detseitin (A ||- B) (A' ||- B') :- detseitin A A', detseitin B B'.
+detseitin (A ||- B) (A' ||- B') :-
+  detseitin A A', detseitin B B'.
+% Continue similarly with the detseitin clauses
 detseitin (A ||+ B) (A' ||+ B') :- detseitin A A', detseitin B B'.
 detseitin (A &&- B) (A' &&- B') :- detseitin A A', detseitin B B'.
 detseitin (A &&+ B) (A' &&+ B') :- detseitin A A', detseitin B B'.
